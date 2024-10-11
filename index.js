@@ -1,9 +1,10 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, messageLink } = require('discord.js');
 const axios = require('axios')
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 const ALLOWED = process.env.ALLOWED ? process.env.ALLOWED.split(',') : []
+const SHOCKEE = process.env.SHOCKEE || null
 
 client.on('ready', () => {
  console.log(`Logged in as ${client.user.tag}!`);
@@ -29,8 +30,6 @@ async function sendStimulus(type, value, reason) {
 }
 
 client.on('messageCreate', async msg => {
-    console.log(msg.author)
-
     const user = msg.author.globalName
 
     if (ALLOWED.indexOf(user) < 0) {
