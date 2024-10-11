@@ -4,14 +4,14 @@
 #
 
 app = 'shock-jb'
-primary_region = 'ewr'
+primary_region = 'sea'
 
 [build]
 
 [env]
-  PORT = '8080'
+  PORT = '0'
 
 [[vm]]
-  memory = '1gb'
+  memory = '256mb'
   cpu_kind = 'shared'
   cpus = 1
