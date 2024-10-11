@@ -4,7 +4,10 @@ const axios = require('axios')
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 const ALLOWED = process.env.ALLOWED ? process.env.ALLOWED.split(',') : []
-const SHOCKEE = process.env.SHOCKEE || null
+
+const STATS = {}
+const TOTAL_ZAPS = 0
+const TOTAL_VIBES = 0
 
 client.on('ready', () => {
  console.log(`Logged in as ${client.user.tag}!`);
@@ -33,7 +36,6 @@ client.on('messageCreate', async msg => {
     const user = msg.author.globalName
 
     if (ALLOWED.indexOf(user) < 0) {
-        console.log(`User: ${user} not allowed.`)
         return
     } else {
         console.log(`User ${user} is allowed.`)
@@ -42,11 +44,19 @@ client.on('messageCreate', async msg => {
     if (msg.content === '!vibe') {
         await sendStimulus('vibe', 15, 'Vibe Check!')
         await msg.react('🍊')
+        TOTAL_VIBES++
+        STATS[user]++
     }
 
     if(msg.content === '!shock') {
         await sendStimulus('zap', 15, 'Shock Check!')
         await msg.react('🍇')
+        TOTAL_ZAPS++
+        STATS[user]++
+    }
+
+    if (msg.content == '!stats') {
+        client.channels.cache.get(msg.channelId).send(`Total shocks: ${TOTAL_ZAPS} and Total Vibes: ${TOTAL_VIBES} since last deploy.`)
     }
 })
 
