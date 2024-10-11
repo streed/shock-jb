@@ -34,6 +34,7 @@ client.on('messageCreate', async msg => {
 
     if (ALLOWED.indexOf(user) < 0) {
         console.log(`User: ${user} not allowed.`)
+        return
     } else {
         console.log(`User ${user} is allowed.`)
     }
