@@ -11,7 +11,7 @@ const TOTAL_VIBES = 0
 
 client.on('ready', () => {
  console.log(`Logged in as ${client.user.tag}!`)
- console.log('Allowed users' + ALLOWED)
+ console.log('Allowed users: ' + ALLOWED)
 });
 
 async function sendStimulus(type, value, reason) {
@@ -36,7 +36,7 @@ async function sendStimulus(type, value, reason) {
 client.on('messageCreate', async msg => {
     const user = msg.author.globalName
 
-    console.log(user)
+    console.log('Received message from: ' + user)
 
     if (ALLOWED.indexOf(user) < 0) {
         return
