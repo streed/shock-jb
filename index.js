@@ -6,8 +6,8 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 const ALLOWED = process.env.ALLOWED ? process.env.ALLOWED.split(',') : []
 
 const STATS = {}
-const TOTAL_ZAPS = 0
-const TOTAL_VIBES = 0
+let TOTAL_ZAPS = 0
+let TOTAL_VIBES = 0
 
 client.on('ready', () => {
  console.log(`Logged in as ${client.user.tag}!`)
