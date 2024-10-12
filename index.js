@@ -10,8 +10,8 @@ const TOTAL_ZAPS = 0
 const TOTAL_VIBES = 0
 
 client.on('ready', () => {
- console.log(`Logged in as ${client.user.tag}!`);
- console.log('Allowed users' + ALLOWED
+ console.log(`Logged in as ${client.user.tag}!`)
+ console.log('Allowed users' + ALLOWED)
 });
 
 async function sendStimulus(type, value, reason) {
