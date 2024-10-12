@@ -36,7 +36,7 @@ async function sendStimulus(type, value, reason) {
 client.on('messageCreate', async msg => {
     const user = msg.author.globalName
 
-    console.log('Received message from: ' + user)
+    console.log('Received message from: ' + msg.author)
 
     if (ALLOWED.indexOf(user) < 0) {
         return
