@@ -26,7 +26,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 let Context = {
    allowed_users: ENV.ALLOWED.concat(ENV.TARGET ? [ENV.TARGET] : []),
     mode: {
-        active_mode: ENV.TARGET ? MODES.TARGET : MODES.ALLOWED_ONLY,
+        active_mode: MODES.ALLOWED_ONLY,
         opts: {
             target_checkin_interval: 1
         }
@@ -39,8 +39,10 @@ let Context = {
     }
 };
 
+console.log(Context)
 
-async function allowed(user, mode = MODES.ALLOWED_ONLY) {
+
+function allowed(user, mode = MODES.ALLOWED_ONLY) {
     switch(mode) {
         case MODES.OFF:
             return false;
@@ -48,7 +50,8 @@ async function allowed(user, mode = MODES.ALLOWED_ONLY) {
             return true;
         case MODES.ALLOWED_ONLY:
             return Context.allowed_users.indexOf(user) >= 0;
-        case MODES.TARGET: case MODES.TARGET_PING:
+        case MODES.TARGET:
+        case MODES.TARGET_PING:
             if (Context.mode.opts.target_last_checkin && Context.mode.opts.target_last_checkin - ONE_HOUR > Date.now() ) {
                 return allowed(user, MODES.ALLOWED_ONLY);
             }
@@ -67,7 +70,7 @@ async function sendStimulus(type, value, reason) {
         headers: {
             accept: 'application/json',
             'content-type': 'application/json',
-            Authorization: SECRETS.PAVOLOCK_API_TOKEN
+            Authorization: SECRETS.PAVLOK_API_TOKEN
         },
         data: {stimulus: {stimulusType: type, stimulusValue: value, reason: reason}}
     };
@@ -87,7 +90,7 @@ client.on('ready', () => {
     }
 
     console.log('Logged in as Discord user: %s', client.user.tag);
-    console.log('Current mode: %s', ENV.MODE);
+    console.log('Current mode: %s', Context.mode.active_mode);
 });
 
 client.on('messageCreate', async msg => {
@@ -98,7 +101,7 @@ client.on('messageCreate', async msg => {
         console.log('[DEBUG] Content: %s', msg.content);
     }
 
-    if (user !== ENV.TARGET || !await allowed(user)) {
+    if (!allowed(user)) {
         if (Context.mode.active_mode === MODES.TARGET_PING) {
             sendMessage(msg.channelId, `Hey <@${ENV.TARGET}> are you still around to get shocked?  pls !ack`);
         }
