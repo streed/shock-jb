@@ -40,7 +40,7 @@ let Context = {
 };
 
 
-async function allowed(user, mode = Context.mode.active_mode) {
+async function allowed(user, mode = MODES.ALLOWED_ONLY) {
     switch(mode) {
         case MODES.OFF:
             return false;
