@@ -87,7 +87,7 @@ client.on('ready', () => {
     }
 
     console.log('Logged in as Discord user: %s', client.user.tag);
-    console.log('Current mode: %s', MODE);
+    console.log('Current mode: %s', ENV.MODE);
 });
 
 client.on('messageCreate', async msg => {
