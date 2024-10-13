@@ -2,39 +2,29 @@ const { Client, GatewayIntentBits, messageLink } = require('discord.js');
 const axios = require('axios');
 
 const MODES = {
-  OFF:          'off',     // Nobody on the server may send commands
-  ON:           'on',      // Anyone on the server may send commands
-  ALLOWED_ONLY: 'allowed', // Only users in the ENV.ALLOWED list may send commands
-
-  TARGET:       'target',     // Only users in the ENV.ALLOWED list may send commands, target user will be periodically asked to
-                              // confirm they are still around
-  TARGET_PING:  'target_ping' // Ping the target, or watch for an !ack from the target
+  OFF:          'off',
+  ON:           'on',
+  ALLOWED_ONLY: 'allowed',
+  TARGET:       'target',
+  TARGET_PING:  'target_ping'
 };
 
-const ONE_HOUR = 60 * 60 * 1000; // In ms, to work with std
+const ONE_HOUR = 60 * 60 * 1000;
 
-
-// All environment variables that are secrets, persisted at startup
+process.env.PAVLOK_API_TOKEN = process.env.API_TOKEN
 const SECRETS = {
-  PAVLOK_API_TOKEN = process.env.PAVLOK_API_TOKEN // API token to use for Pavlok requests
+  PAVLOK_API_TOKEN = process.env.PAVLOK_API_TOKEN
 };
 
-// All environment variables that are _not_ secrets, persisted at startup
 const ENV = {
-  DEBUG = process.env.DEBUG ? true : false, // Print debug logs
-
-  ALLOWED = process.env.ALLOWED ? process.env.ALLOWED.split(',') : [], // List of users to add to allow list at startup
-  TARGET = process.env.TARGET // Discord user for the person the stimuli are targetted at (wearer of the Pavlok device)
+  DEBUG = process.env.DEBUG ? true : false
+  ALLOWED = process.env.ALLOWED ? process.env.ALLOWED.split(',') : [],
+  TARGET = process.env.TARGET
 };
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
-
-
-// Holds all mutable data/configuration for the bot
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] })
 let Context = {
-   // Keeps track of users allowed to invoke any commands
    allowed_users = ENV.ALLOWED.concat(ENV.TARGET ? [ENV.TARGET] : []),
-
     mode = {
         active_mode = TARGET ? MODES.TARGET : MODES.ALLOWED_ONLY,
         opts = {
@@ -70,8 +60,6 @@ async function allowed(user, mode = Context.mode.active_mode) {
     }
 }
 
-
-// Send stimulus to the Pavlok
 async function sendStimulus(type, value, reason) {
     const options = {
         method: 'POST',
@@ -89,12 +77,9 @@ async function sendStimulus(type, value, reason) {
     });
 }
 
-// Send message to Discord channel
 async function sendMessage(channelId, msg) {
     client.channels.cache.get(channelId).send(msg);
 }
-
-
 
 client.on('ready', () => {
     if (ENV.DEBUG) {
@@ -105,7 +90,6 @@ client.on('ready', () => {
     console.log('Current mode: %s', MODE);
 });
 
-
 client.on('messageCreate', async msg => {
     const user = msg.author.id;
 
@@ -114,7 +98,7 @@ client.on('messageCreate', async msg => {
         console.log('[DEBUG] Content: %s', msg.content);
     }
 
-    if (user !== ENV.TARGET || ! await allowed(user)) {
+    if (user !== ENV.TARGET || !await allowed(user)) {
         if (Context.mode.active_mode === MODES.TARGET_PING) {
             sendMessage(msg.channelId, `Hey <@${ENV.TARGET}> are you still around to get shocked?  pls !ack`);
         }
@@ -167,7 +151,6 @@ client.on('messageCreate', async msg => {
             break;
     }
 });
-
 
 // Log In our bot
 client.login(process.env.DISCORD);
