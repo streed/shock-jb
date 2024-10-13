@@ -13,29 +13,29 @@ const ONE_HOUR = 60 * 60 * 1000;
 
 process.env.PAVLOK_API_TOKEN = process.env.API_TOKEN
 const SECRETS = {
-  PAVLOK_API_TOKEN = process.env.PAVLOK_API_TOKEN
+  PAVLOK_API_TOKEN: process.env.PAVLOK_API_TOKEN
 };
 
 const ENV = {
-  DEBUG = process.env.DEBUG ? true : false
-  ALLOWED = process.env.ALLOWED ? process.env.ALLOWED.split(',') : [],
-  TARGET = process.env.TARGET
+  DEBUG: process.env.DEBUG ? true : false,
+  ALLOWED: process.env.ALLOWED ? process.env.ALLOWED.split(',') : [],
+  TARGET: process.env.TARGET
 };
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] })
 let Context = {
-   allowed_users = ENV.ALLOWED.concat(ENV.TARGET ? [ENV.TARGET] : []),
-    mode = {
-        active_mode = TARGET ? MODES.TARGET : MODES.ALLOWED_ONLY,
-        opts = {
-            target_checkin_interval = 1 // in hours
+   allowed_users: ENV.ALLOWED.concat(ENV.TARGET ? [ENV.TARGET] : []),
+    mode: {
+        active_mode: ENV.TARGET ? MODES.TARGET : MODES.ALLOWED_ONLY,
+        opts: {
+            target_checkin_interval: 1
         }
     },
 
-    stats = {
-        total_zaps = 0,
-        total_vibes = 0,
-        users = {}
+    stats: {
+        total_zaps: 0,
+        total_vibes: 0,
+        users: {}
     }
 };
 
