@@ -135,7 +135,7 @@ client.on('messageCreate', async msg => {
 
         case '!zap':
         case '!shock':
-            await sendStimulus('zap', 15, 'Zap Check!');
+            await sendStimulus('zap', 25, 'Zap Check!');
             await msg.react('🍇');
             Context.stats.total_zaps++;
             Context.stats.users[user]++;
