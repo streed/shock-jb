@@ -1,5 +1,7 @@
 const { Client, GatewayIntentBits, messageLink } = require('discord.js');
 const axios = require('axios');
+const crypto = require('crypto');
+const http = require('http');
 
 const MODES = {
   OFF:          'off',
@@ -40,7 +42,6 @@ let Context = {
 };
 
 console.log(Context)
-
 
 function allowed(user, mode = MODES.ALLOWED_ONLY) {
     switch(mode) {
@@ -91,6 +92,8 @@ client.on('ready', () => {
 
     console.log('Logged in as Discord user: %s', client.user.tag);
     console.log('Current mode: %s', Context.mode.active_mode);
+
+    startWebhookHandler();
 });
 
 client.on('messageCreate', async msg => {
@@ -102,10 +105,7 @@ client.on('messageCreate', async msg => {
     }
 
     if (!allowed(user)) {
-        if (Context.mode.active_mode === MODES.TARGET_PING) {
-            sendMessage(msg.channelId, `Hey <@${ENV.TARGET}> are you still around to get shocked?  pls !ack`);
-        }
-        msg.react('❌');
+        console.log(`User not allowed`);
         return;
     } else if (ENV.DEBUG) {
         console.log('[DEBUG] User ${user} is allowed', user);
@@ -115,30 +115,15 @@ client.on('messageCreate', async msg => {
 
     const cmd = remaining_args.shift();
 
+    sendToAI(msg);
+
     switch(cmd) {
         case '!ack':
             if (user === ENV.TARGET) {
                 Context.mode.active_mode = MODES.TARGET;
                 Context.mode.opts.target_last_checkin = Date.now();
                 msg.react('✔️');
-            } else {
-                msg.react('❌');
             }
-            break;
-
-        case '!vibe':
-            await sendStimulus('vibe', 15, 'Vibe Check!');
-            await msg.react('🍊');
-            Context.stats.total_vibes++;
-            Context.stats.users[user]++;
-            break;
-
-        case '!zap':
-        case '!shock':
-            await sendStimulus('zap', 50, 'Zap Check!');
-            await msg.react('🍇');
-            Context.stats.total_zaps++;
-            Context.stats.users[user]++;
             break;
 
         case '!mode':
@@ -154,6 +139,98 @@ client.on('messageCreate', async msg => {
             break;
     }
 });
+
+function sendToAI(msg) {
+    const id = `${msg.channelId}-${msg.id}`;
+    const body = msg.content;
+    const timestamp = Math.round((new Date()).getTime() / 1000);
+
+    const request = {
+        id,
+        body,
+        timestamp,
+        signature: generateSignature(id, body, timestamp, process.env.SECRET_KEY)
+    }
+
+    console.log(request)
+
+    const options = {
+        method: 'POST',
+        url: process.env.AI_WEBHOOK,
+        headers: {
+            accept: 'application/json',
+            'content-type': 'application/json'
+        },
+        data: { llama: request}
+    };
+
+    axios.request(options).catch(function (error) {
+        console.error("Request Failed")
+    });
+}
+
+function generateSignature(id, body, timestamp, secret) {
+    const hash = crypto.createHash('sha256');
+    hash.update(`${id}${body}${timestamp}${secret}`);
+    return hash.digest('hex')
+}
+
+function startWebhookHandler() {
+    var server = http.createServer(function (req, res) {
+        body = "";
+        req.on('data', function (chunk) {
+            body += chunk;
+        });
+      
+        req.on('end', async function () {
+          try {
+            var request = JSON.parse(body);
+            if (request.type === "validate") {
+              var hash = crypto.createHash('sha256');
+              hash.update(request.timestamp + request.value + process.env.SECRET_KEY);
+              res.write(JSON.stringify({
+                  "code": hash.digest('hex')
+              }));
+      
+              res.end();
+            } else {
+              const [channelId, messageId] = request.id.split('-');
+              const command = request.response.output;
+              const reasoning = request.response.reasoning;
+              let msg;
+
+              console.log(command, reasoning)
+
+              switch (command) {
+                case "shock": 
+                    msg = await (await client.channels.fetch(channelId)).messages.fetch(messageId);
+                    await sendStimulus('zap', 50, 'Zap Check!');
+                    await msg.react('🍇');
+                    sendMessage(channelId, reasoning);
+                    Context.stats.total_zaps++;
+                    Context.stats.users[user]++;
+                    break;
+                case "vibrate":
+                    msg = await (await client.channels.fetch(channelId)).messages.fetch(messageId);
+                    await sendStimulus('vibe', 15, 'Vibe Check!');
+                    await msg.react('🍊');
+                    Context.stats.total_vibes++;
+                    Context.stats.users[user]++;
+                    break;
+                default:
+                    console.log("do nothing");
+              }
+
+              client.channels.fetch(channelId).
+              res.end()
+            }
+          } catch (e) {
+            res.end();
+          }
+        });
+      });
+      server.listen(8000);
+}
 
 // Log In our bot
 client.login(process.env.DISCORD);
