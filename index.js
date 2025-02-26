@@ -206,7 +206,6 @@ function startWebhookHandler() {
                     msg = await (await client.channels.fetch(channelId)).messages.fetch(messageId);
                     await sendStimulus('zap', 50, 'Zap Check!');
                     await msg.react('🍇');
-                    sendMessage(channelId, reasoning);
                     Context.stats.total_zaps++;
                     Context.stats.users[user]++;
                     break;
