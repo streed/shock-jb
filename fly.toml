@@ -9,7 +9,7 @@ primary_region = 'sea'
 [build]
 
 [env]
-  PORT = '0'
+  PORT = '8000'
 
 [[vm]]
   memory = '256mb'
