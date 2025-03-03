@@ -184,7 +184,7 @@ function startWebhookHandler() {
           try {
             var request = JSON.parse(body);
             if (request.type === "validate") {
-              var hash = crypto.createHmac('sha256', secret).update(`${request.timestamp}${request.value}`);
+              var hash = crypto.createHmac('sha256', process.env.SECRET_KEY).update(`${request.timestamp}${request.value}`);
               res.write(JSON.stringify({
                   "code": hash.digest('hex')
               }));
