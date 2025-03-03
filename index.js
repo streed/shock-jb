@@ -170,9 +170,7 @@ function sendToAI(msg) {
 }
 
 function generateSignature(id, body, timestamp, secret) {
-    const hash = crypto.createHash('sha256');
-    hash.update(`${id}${body}${timestamp}${secret}`);
-    return hash.digest('hex')
+    return crypto.createHmac('sha256', secret).update(`${id}${body}${timestamp}`).digest('hex');
 }
 
 function startWebhookHandler() {
@@ -186,8 +184,7 @@ function startWebhookHandler() {
           try {
             var request = JSON.parse(body);
             if (request.type === "validate") {
-              var hash = crypto.createHash('sha256');
-              hash.update(request.timestamp + request.value + process.env.SECRET_KEY);
+              var hash = crypto.createHmac('sha256', secret).update(`${request.timestamp}${request.value}`);
               res.write(JSON.stringify({
                   "code": hash.digest('hex')
               }));
