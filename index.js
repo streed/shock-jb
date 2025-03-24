@@ -193,11 +193,7 @@ function startWebhookHandler() {
             } else {
               const [channelId, messageId] = request.id.split('-');
               const command = request.response.output;
-              const reasoning = request.response.reasoning;
               let msg;
-
-              console.log(command, reasoning)
-
               switch (command) {
                 case "shock": 
                     msg = await (await client.channels.fetch(channelId)).messages.fetch(messageId);
@@ -213,11 +209,31 @@ function startWebhookHandler() {
                     Context.stats.total_vibes++;
                     Context.stats.users[user]++;
                     break;
+                case "help":
+                    msg = `Welp you wanna know how to shock dear ol' JB? Welp, I got the tips for yee!
+                        If'n yer look'in to send a shock or a vibe just ask me to do it like this:
+                            This here fine fella JB needs a good ol' shocking
+                            JB needs to be shook
+                            !shock
+                            !zap
+                            !vibe
+                        Whatever you may want to do and if a zap is sent then a 🍇 will confirm that or if'in it was a vive then a 🍊 will confirm it.
+
+                        If you want this again....just ask how you might shock Jb and I'll remind yee.
+                    `
+
+                    const channel = await client.channels.fetch(channelId);
+                    const message = channel.messages.fetch(messageId);
+                    const thread = await message.startThread({
+                        name: 'Shock JB Help',
+                        autoArchiveDuration: 60
+                    });
+                    await thread.send(msg);
+                    break;
                 default:
                     console.log("do nothing");
               }
 
-              client.channels.fetch(channelId).
               res.end()
             }
           } catch (e) {
