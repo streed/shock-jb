@@ -223,7 +223,7 @@ function startWebhookHandler() {
                     `
 
                     const channel = await client.channels.fetch(channelId);
-                    const message = channel.messages.fetch(messageId);
+                    const message = await channel.messages.fetch(messageId);
                     const thread = await message.startThread({
                         name: 'Shock JB Help',
                         autoArchiveDuration: 60
