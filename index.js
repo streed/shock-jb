@@ -1,4 +1,5 @@
 const { Client, GatewayIntentBits, messageLink } = require('discord.js');
+const pavlokSdk = require('api')('@pavlok/v5.0#p2k4b1mltos4gjz');
 const axios = require('axios');
 const crypto = require('crypto');
 const http = require('http');
@@ -17,6 +18,11 @@ process.env.PAVLOK_API_TOKEN = process.env.API_TOKEN
 const SECRETS = {
   PAVLOK_API_TOKEN: process.env.PAVLOK_API_TOKEN
 };
+
+// Initialize Pavlok SDK authentication
+if (SECRETS.PAVLOK_API_TOKEN) {
+  pavlokSdk.auth(SECRETS.PAVLOK_API_TOKEN);
+}
 
 const ENV = {
   DEBUG: process.env.DEBUG ? true : false,
@@ -65,18 +71,13 @@ function allowed(user, mode = MODES.ALLOWED_ONLY) {
 }
 
 async function sendStimulus(type, value, reason) {
-    const options = {
-        method: 'POST',
-        url: 'https://api.pavlok.com/api/v5/stimulus/send',
-        headers: {
-            accept: 'application/json',
-            'content-type': 'application/json',
-            Authorization: SECRETS.PAVLOK_API_TOKEN
-        },
-        data: {stimulus: {stimulusType: type, stimulusValue: value, reason: reason}}
-    };
-
-    axios.request(options).catch(function (error) {
+    pavlokSdk.stimulusSend({
+        stimulus: {
+            stimulusType: type,
+            stimulusValue: value,
+            reason: reason
+        }
+    }).catch(function (error) {
         console.error(error);
     });
 }
