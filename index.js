@@ -19,6 +19,9 @@ const SECRETS = {
   PAVLOK_API_TOKEN: process.env.PAVLOK_API_TOKEN
 };
 
+// Initialize Pavlok SDK authentication
+pavlokSdk.auth(SECRETS.PAVLOK_API_TOKEN);
+
 const ENV = {
   DEBUG: process.env.DEBUG ? true : false,
   ALLOWED: process.env.ALLOWED ? process.env.ALLOWED.split(',') : [],
@@ -66,7 +69,6 @@ function allowed(user, mode = MODES.ALLOWED_ONLY) {
 }
 
 async function sendStimulus(type, value, reason) {
-    pavlokSdk.auth(SECRETS.PAVLOK_API_TOKEN);
     pavlokSdk.stimulusSend({
         stimulus: {
             stimulusType: type,
