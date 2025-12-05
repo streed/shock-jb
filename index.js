@@ -20,7 +20,9 @@ const SECRETS = {
 };
 
 // Initialize Pavlok SDK authentication
-pavlokSdk.auth(SECRETS.PAVLOK_API_TOKEN);
+if (SECRETS.PAVLOK_API_TOKEN) {
+  pavlokSdk.auth(SECRETS.PAVLOK_API_TOKEN);
+}
 
 const ENV = {
   DEBUG: process.env.DEBUG ? true : false,
